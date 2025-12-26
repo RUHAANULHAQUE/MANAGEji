@@ -260,9 +260,14 @@ def header():
                    unsafe_allow_html=True)
     
     with col2:
+        # Get current screen index, default to 0 (dashboard) if not in nav list
+        nav_screens = ['dashboard', 'pos', 'products', 'settings']
+        current_index = nav_screens.index(st.session_state.screen) if st.session_state.screen in nav_screens else 0
+        
         screen = st.selectbox("", ['Dashboard', 'POS', 'Products', 'Settings'], 
-                             index=['dashboard', 'pos', 'products', 'settings'].index(st.session_state.screen),
-                             label_visibility='collapsed')
+                             index=current_index,
+                             label_visibility='collapsed',
+                             key='nav_select')
         st.session_state.screen = screen.lower()
 
 def dashboard():
