@@ -76,7 +76,7 @@ def init_session_state():
 
 def apply_global_styles(config):
     primary = config['theme']['primary'] if config else '#2563eb'
-    background = config['theme']['background'] if config else '#f8fafc'
+    background = config['theme']['background'] if config else '#000000'
     accent = config['theme']['accent'] if config else '#60a5fa'
     
     st.markdown(f"""
