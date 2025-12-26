@@ -499,8 +499,12 @@ def init_session_state():
 # ============== STYLING ==============
 
 def apply_global_styles(config):
-    # Handle None config (first run)
-    theme = config['theme'] if config else STORE_TEMPLATES['cafe']['theme']
+    # Safe handling for None config during first run
+    if not config:
+        theme = STORE_TEMPLATES['cafe']['theme']
+    else:
+        theme = config.get('theme', STORE_TEMPLATES['cafe']['theme'])
+
     primary = theme.get('primary', '#2563eb')
     background = theme.get('background', '#f8fafc')
     accent = theme.get('accent', '#60a5fa')
@@ -814,11 +818,26 @@ def header():
         screens = ['Dashboard', 'POS', 'Products', 'Customers', 'Analytics', 'Settings']
         screen_map = {s: s.lower() for s in screens}
         
-        current_idx = [s.lower() for s in screens].index(st.session_state.screen) if st.session_state.screen in [s.lower() for s in screens] else 0
+        # Safe Screen Handling
+        current_screen_name = st.session_state.screen.capitalize()
+        if current_screen_name not in screens:
+            # If current screen isn't in main menu (e.g. Receipt), don't break selectbox
+            # Just show Dashboard as selected or empty, but we'll default to 0 index (Dashboard)
+            current_idx = 0
+        else:
+            current_idx = screens.index(current_screen_name)
+            
         selected = st.selectbox("", screens, index=current_idx, label_visibility="collapsed")
+        
         if screen_map[selected] != st.session_state.screen:
-            st.session_state.screen = screen_map[selected]
-            st.rerun()
+            # Only rerun if the USER changed the selection, not if it's just a refresh
+            if current_screen_name in screens and selected != current_screen_name:
+                st.session_state.screen = screen_map[selected]
+                st.rerun()
+            elif current_screen_name not in screens:
+                # If we were on a hidden screen (Receipt) and user selected something
+                st.session_state.screen = screen_map[selected]
+                st.rerun()
 
 # ============== DASHBOARD ==============
 
@@ -1403,7 +1422,6 @@ def settings_screen():
         
         col1, col2, col3 = st.columns(3)
         with col1:
-            # FIXED SYNTAX ERROR HERE
             config['currency'] = st.text_input("Currency", value=config.get('currency', '$'))
         with col2:
             config['taxRate'] = st.number_input("Tax Rate (%)", value=float(config.get('taxRate', 0)), 
@@ -1587,10 +1605,8 @@ def main():
     # Load config from database
     config = ConfigDB.get()
     
-    # Apply global styles with fallback for first run
-    default_theme = STORE_TEMPLATES['cafe']['theme']
-    active_config = config if config else {'theme': default_theme, 'businessName': 'Universal POS'}
-    apply_global_styles(active_config)
+    # Apply global styles
+    apply_global_styles(config)
     
     if st.session_state.screen == 'welcome' or not config:
         welcome_screen()
