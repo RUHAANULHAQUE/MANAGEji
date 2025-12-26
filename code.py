@@ -75,147 +75,127 @@ def init_session_state():
 # ============== STYLING ==============
 
 def apply_global_styles(config):
-    """
-    Applies global CSS that enforces:
-      - True black app background with white text.
-      - White cards/forms/receipts with green text.
-    """
-    # Default green palette (used for white-on-green text)
-    green_primary = '#16a34a'  # Emerald-600
-    green_accent = '#22c55e'   # Emerald-500
-
-    # Use config theme colors if provided, but prefer green for white-card text
-    primary = config['theme'].get('primary', green_primary) if config else green_primary
-    accent = config['theme'].get('accent', green_accent) if config else green_accent
-    background = '#000000'  # Force true black background
-
+    primary = config['theme']['primary'] if config else '#2563eb'
+    background = config['theme']['background'] if config else '#f8fafc'
+    accent = config['theme']['accent'] if config else '#60a5fa'
+    
     st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+    
     * {{
         font-family: 'Inter', sans-serif;
     }}
-
-    /* ===== APP BACKGROUND (BLACK) ===== */
+    
     .stApp {{
-        background-color: {background} !important;
-        color: #ffffff !important;
+        background: linear-gradient(135deg, {background} 0%, #ffffff 100%);
     }}
-
-    /* Most text on the dark app background should be white for readability */
-    body, p, span, div, label, h1, h2, h3, h4, h5, h6 {{
-        color: #ffffff !important;
+    
+    .metric-card {{
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border-left: 4px solid {primary};
+        transition: transform 0.2s, box-shadow 0.2s;
     }}
-
-    /* ===== WHITE CARD / PANEL STYLES =====
-       Make cards and panels white background with green text.
-       We apply to commonly used containers in the app.
-    */
-    .metric-card,
-    .product-card,
-    .cart-item,
-    .receipt,
-    .stForm,
-    .stRadio,
-    .stSelectbox,
-    .stFileUploader,
-    .main-header,
-    .stTextInput > div > div,
-    .stNumberInput > div > div {{
-        background: #ffffff !important;
-        color: {primary} !important;
-        border-radius: 10px;
-    }}
-
-    /* Ensure inner text inside white cards is green */
-    .metric-card *,
-    .product-card *,
-    .cart-item *,
-    .receipt *,
-    .main-header * {{
-        color: {primary} !important;
-    }}
-
-    /* Muted captions inside white areas: darker green */
-    .stat-label,
-    .stCaption,
-    small,
-    .muted-text {{
-        color: #166534 !important;
-    }}
-
-    /* ===== MAIN HEADER: keep high contrast (black header with white text) ===== */
-    .main-header {{
-        background: #000000 !important;
-        border: 1px solid {accent} !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.35) !important;
-    }}
-    .main-header h2, .main-header p {{
-        color: #ffffff !important;
-    }}
-
-    /* ===== BUTTONS ===== */
-    .stButton > button {{
-        background: {primary} !important;
-        color: #ffffff !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        border: none !important;
-        padding: .5rem 0.75rem !important;
-    }}
-    .stButton > button:hover {{
-        background: {accent} !important;
-        color: #000000 !important;
+    
+    .metric-card:hover {{
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }}
-
-    /* Secondary button style (neutral) */
-    button[aria-label="secondary"] {{
-        background: #f3f4f6 !important;
-        color: {primary} !important;
+    
+    .product-card {{
+        background: white;
+        padding: 1.25rem;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        cursor: pointer;
+        transition: all 0.2s;
+        height: 100%;
     }}
-
-    /* ===== INPUTS ===== */
-    input, textarea, select {{
-        background: #ffffff !important;
-        color: {primary} !important;
-        border: 1px solid {accent} !important;
-        border-radius: 6px !important;
+    
+    .product-card:hover {{
+        border-color: {accent};
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     }}
-
-    /* ===== BADGES ===== */
+    
+    .product-card.out-of-stock {{
+        opacity: 0.6;
+        border-color: #ef4444;
+    }}
+    
+    .product-card.low-stock {{
+        border-color: #f59e0b;
+    }}
+    
+    .badge {{
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }}
+    
     .badge-success {{
-        background: #dcfce7 !important;
-        color: #166534 !important;
+        background: #d1fae5;
+        color: #065f46;
     }}
-
+    
     .badge-warning {{
-        background: #fef9c3 !important;
-        color: #854d0e !important;
+        background: #fef3c7;
+        color: #92400e;
     }}
-
+    
     .badge-danger {{
-        background: #fee2e2 !important;
-        color: #991b1b !important;
+        background: #fee2e2;
+        color: #991b1b;
     }}
-
-    /* ===== CHARTS / PLOTS - ensure contrast on dark background ===== */
-    .stLineChart > div, .stPlotlyChart > div {{
-        background: transparent !important;
-        color: #ffffff !important;
+    
+    .main-header {{
+        background: linear-gradient(135deg, {primary} 0%, {accent} 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }}
-
-    /* ===== RECEIPT PRINTABLE AREA ===== */
-    .receipt {{
-        padding: 1.25rem !important;
-        border-radius: 8px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+    
+    .cart-item {{
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        border-left: 3px solid {primary};
     }}
-
-    /* Hide default Streamlit menu & footer */
-    #MainMenu {{ visibility: hidden; }}
-    footer {{ visibility: hidden; }}
+    
+    .stat-number {{
+        font-size: 2rem;
+        font-weight: 700;
+        color: {primary};
+        margin: 0;
+    }}
+    
+    .stat-label {{
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin: 0;
+    }}
+    
+    .stButton > button {{
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }}
+    
+    .stButton > button:hover {{
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }}
+    
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
     </style>
     """, unsafe_allow_html=True)
 
@@ -252,14 +232,14 @@ def calculate_loyalty_points(total, rate=1):
 def welcome_screen():
     st.markdown("""
     <div style='text-align: center; padding: 4rem 2rem;'>
-        <h1 style='font-size: 3.5rem; font-weight: 700; background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+        <h1 style='font-size: 3.5rem; font-weight: 700; background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); 
                    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem;'>
             🏪 Universal POS Pro
         </h1>
-        <p style='font-size: 1.25rem; color: #c7d2d9; margin-bottom: 0.5rem;'>
+        <p style='font-size: 1.5rem; color: #64748b; margin-bottom: 0.5rem;'>
             Next-Generation Point of Sale System
         </p>
-        <p style='color: #9aa6b0; font-size: 1.05rem;'>
+        <p style='color: #94a3b8; font-size: 1.1rem;'>
             Complete business management with analytics, inventory, and customer insights
         </p>
     </div>
@@ -276,10 +256,10 @@ def welcome_screen():
     for col, (icon, title, desc) in zip([col1, col2, col3, col4], features):
         with col:
             st.markdown(f"""
-            <div class='metric-card' style='text-align: center; padding:1rem;'>
-                <div style='font-size: 2.2rem; margin-bottom: 0.25rem;'>{icon}</div>
-                <h3 style='margin: 0; font-size: 1.05rem;'>{title}</h3>
-                <p style='color: #166534; font-size: 0.875rem; margin: 0.35rem 0 0 0;'>{desc}</p>
+            <div class='metric-card' style='text-align: center;'>
+                <div style='font-size: 2.5rem; margin-bottom: 0.5rem;'>{icon}</div>
+                <h3 style='margin: 0; font-size: 1.1rem;'>{title}</h3>
+                <p style='color: #6b7280; font-size: 0.875rem; margin: 0.5rem 0 0 0;'>{desc}</p>
             </div>
             """, unsafe_allow_html=True)
    
@@ -298,17 +278,17 @@ def setup_wizard():
     
     if st.session_state.setup_step == 1:
         st.markdown("<h2 style='text-align: center;'>Choose Your Business Type</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #9aa6b0;'>Select a template to get started quickly</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #64748b;'>Select a template to get started quickly</p>", unsafe_allow_html=True)
         st.markdown("<br>", unsafe_allow_html=True)
        
         cols = st.columns(3)
         for idx, (key, template) in enumerate(STORE_TEMPLATES.items()):
             with cols[idx % 3]:
                 st.markdown(f"""
-                <div class='product-card' style='text-align: center; min-height: 200px; padding:1rem;'>
+                <div class='product-card' style='text-align: center; min-height: 200px;'>
                     <div style='font-size: 3rem; margin-bottom: 1rem;'>{template['icon']}</div>
-                    <h3 style='margin: 0;'>{template['name']}</h3>
-                    <p style='color: #166534; margin: 0.5rem 0;'>{len(template['fields'])} custom fields</p>
+                    <h3 style='margin: 0; color: #1f2937;'>{template['name']}</h3>
+                    <p style='color: #6b7280; margin: 0.5rem 0;'>{len(template['fields'])} custom fields</p>
                 </div>
                 """, unsafe_allow_html=True)
                 
@@ -395,7 +375,7 @@ def header():
     with col1:
         st.markdown(f"""
         <div class='main-header' style='padding: 1rem 1.5rem;'>
-            <h2 style='margin: 0;'>{config.get('businessName', 'Universal POS Pro')}</h2>
+            <h2 style='margin: 0; color: white;'>{config.get('businessName', 'Universal POS Pro')}</h2>
             <p style='margin: 0; opacity: 0.9; font-size: 0.9rem;'>{datetime.now().strftime("%A, %B %d, %Y")}</p>
         </div>
         """, unsafe_allow_html=True)
@@ -502,7 +482,7 @@ def dashboard():
                 st.markdown(f"""
                 <div class='cart-item'>
                     <strong>{i+1}. {prod['name']}</strong><br>
-                    <span style='color: #166534;'>Sold: {prod['quantity']} | Revenue: {config['currency']}{prod['revenue']:.2f}</span>
+                    <span style='color: #6b7280;'>Sold: {prod['quantity']} | Revenue: {config['currency']}{prod['revenue']:.2f}</span>
                 </div>
                 """, unsafe_allow_html=True)
         else:
@@ -558,10 +538,12 @@ def pos_screen():
                             stock_class = 'out-of-stock' if stock <= 0 else 'low-stock' if stock <= config.get('lowStockThreshold', 5) else ''
                             
                             st.markdown(f"""
-                            <div class='product-card {stock_class}' style='padding:1rem;'>
+                            <div class='product-card {stock_class}'>
                                 <h4 style='margin: 0 0 0.5rem 0;'>{product['name']}</h4>
-                                <p style='font-size: 1.15rem; font-weight: 600; margin: 0;'>{config['currency']}{product['price']:.2f}</p>
-                                {f"<p style='font-size: 0.875rem; margin: 0.5rem 0 0 0;'>Stock: {stock}</p>" if config.get('enableInventory') else ""}
+                                <p style='color: #2563eb; font-size: 1.25rem; font-weight: 600; margin: 0;'>
+                                    {config['currency']}{product['price']:.2f}
+                                </p>
+                                {f"<p style='color: #6b7280; font-size: 0.875rem; margin: 0.5rem 0 0 0;'>Stock: {stock}</p>" if config.get('enableInventory') else ""}
                             </div>
                             """, unsafe_allow_html=True)
                             
@@ -612,9 +594,9 @@ def pos_screen():
         if cart:
             for item in cart:
                 st.markdown(f"""
-                <div class='cart-item' style='padding:0.75rem;'>
+                <div class='cart-item'>
                     <strong>{item['name']}</strong><br>
-                    <span style='color: #166534;'>{config['currency']}{item['price']:.2f} × {item['cartQuantity']}</span>
+                    <span style='color: #6b7280;'>{config['currency']}{item['price']:.2f} × {item['cartQuantity']}</span>
                     <strong style='float: right;'>{config['currency']}{(item['price'] * item['cartQuantity']):.2f}</strong>
                 </div>
                 """, unsafe_allow_html=True)
@@ -644,7 +626,7 @@ def pos_screen():
             discount_pct = st.number_input("Discount (%)", value=0.0, min_value=0.0, max_value=100.0, step=1.0)
             discount = subtotal * (discount_pct / 100)
             
-            tip = st.number_input(f"Tip ({config['currency']})", value=0.0, min_value=0.0, step=0.0)
+            tip = st.number_input(f"Tip ({config['currency']})", value=0.0, min_value=0.0, step=1.0)
             
             taxable = subtotal - discount
             tax = taxable * (config['taxRate'] / 100)
@@ -655,7 +637,7 @@ def pos_screen():
             **Discount:** -{config['currency']}{discount:.2f}<br>
             **Tax ({config['taxRate']}%):** {config['currency']}{tax:.2f}<br>
             **Tip:** {config['currency']}{tip:.2f}<br>
-            <h3 style='color: #16a34a;'>Total: {config['currency']}{total:.2f}</h3>
+            <h3 style='color: #2563eb;'>Total: {config['currency']}{total:.2f}</h3>
             """, unsafe_allow_html=True)
             
             payment_method = st.selectbox("Payment", PAYMENT_METHODS)
@@ -775,9 +757,9 @@ def products_screen():
                         stock_class = "danger" if stock == 0 else "warning" if stock and stock <= 5 else "success"
                         
                         st.markdown(f"""
-                        <div class='product-card' style='padding:1rem;'>
+                        <div class='product-card'>
                             <h4>{product['name']}</h4>
-                            <p style='font-size:1.05rem; margin:0;'>{config['currency']}{product['price']:.2f}</p>
+                            <p style='color: #2563eb; font-size: 1.25rem;'>{config['currency']}{product['price']:.2f}</p>
                             {f"<span class='badge badge-{stock_class}'>Stock: {stock}</span>" if stock is not None else ""}
                         </div>
                         """, unsafe_allow_html=True)
@@ -1054,13 +1036,11 @@ def receipt_screen():
             customer_name = customer['name']
     
     st.markdown(f"""
-    <div class='receipt' style='text-align: center;'>
-        <div style='background: transparent; padding: 1.25rem; border-radius: 8px;'>
-            <h2 style='margin: 0;'>{config['businessName'] or 'Universal POS Pro'}</h2>
-            <p style='margin: 0.35rem 0 0 0; color: #166534;'>Receipt #{transaction['id'][:8]}</p>
-            <p style='margin: 0; color: #166534;'>{datetime.fromisoformat(transaction['timestamp']).strftime("%B %d, %Y %I:%M %p")}</p>
-            <p style='margin: 0; color: #166534;'>Customer: {customer_name}</p>
-        </div>
+    <div style='text-align: center; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
+        <h2 style='color: black; margin: 0;'>{config['businessName'] or 'Universal POS Pro'}</h2>
+        <p style='color: #666; margin: 0.5rem 0;'>Receipt #{transaction['id'][:8]}</p>
+        <p style='color: #666; margin: 0;'>{datetime.fromisoformat(transaction['timestamp']).strftime("%B %d, %Y %I:%M %p")}</p>
+        <p style='color: #666; margin: 0;'>Customer: {customer_name}</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1109,9 +1089,9 @@ def receipt_screen():
     
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.markdown("<h2 style='color: #166534;'>**Total:**</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color: black;'>**Total:**</h2>", unsafe_allow_html=True)
     with col2:
-        st.markdown(f"<h2 style='color: #16a34a;'>{config['currency']}{transaction['total']:.2f}</h2>",
+        st.markdown(f"<h2 style='color: #2563eb;'>{config['currency']}{transaction['total']:.2f}</h2>",
                    unsafe_allow_html=True)
     
     st.info(config.get('receiptFooter', 'Thank you for your business!'))
@@ -1139,26 +1119,6 @@ def main():
     )
     
     init_session_state()
-    # Ensure config exists for styling defaults when first loaded
-    if not st.session_state.config:
-        # default to retail template to have a theme object
-        st.session_state.config = {
-            'businessType': 'retail',
-            'businessName': 'My Store',
-            'theme': STORE_TEMPLATES['retail']['theme'],
-            'fields': STORE_TEMPLATES['retail']['fields'].copy(),
-            'taxRate': STORE_TEMPLATES['retail']['taxRate'],
-            'currency': STORE_TEMPLATES['retail']['currency'],
-            'discountRate': 0,
-            'showTax': True,
-            'receiptFooter': 'Thank you for your business!',
-            'enableInventory': True,
-            'enableCustomers': True,
-            'enableLoyalty': True,
-            'loyaltyRate': 1,
-            'lowStockThreshold': 5
-        }
-
     apply_global_styles(st.session_state.config)
     
     if st.session_state.screen == 'welcome':
